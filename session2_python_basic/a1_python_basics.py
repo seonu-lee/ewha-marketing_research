@@ -298,57 +298,62 @@ a4 = dict(
 ### 입출력, 수정
 a4['name'] # 출력 - name이라는 key가 없으면 에러 발생시킴
 a4.get('name', 0) # 출력 - name이라는 key가 없으면 별도로 지정한 값 반환(0)
-a4['birth'] = '2010-01-25' # 추가
+a4.get('ame', 0) # ame이라는 key가 없으면 0 반환
+a4.get('ame') # ame이라는 key가 없으면 None 반환
+a4['birth'] = '2010-01-25' # 추가 - birth이라는 key가 없으면 새로 추가되고, 있으면 기존 value가 수정됨
 a4['score'] = 50 # 수정
 del a4['birth'] # 삭제
 
 ### 활용
-len(a4)
-a4.keys()
-a4.values()
-a4.items() # (key, value) 튜플형태로 리스트에 담음
+len(a4) # 딕셔너리의 원소 개수는 key의 개수와 동일함, a4에는 name, score, courses, enrolled라는 4개의 key가 있으므로 len(a4)는 4가 됨
+a4.keys() # 딕셔너리의 key를 리스트 형태로 반환, a4에는 name, score, courses, enrolled라는 4개의 key가 있으므로 a4.keys()는 ['name', 'score', 'courses', 'enrolled']라는 리스트가 됨
+a4.values() # 딕셔너리의 value를 리스트 형태로 반환, a4에는 name, score, courses, enrolled라는 4개의 key가 있고, 각각의 value는 'lee', 50, ['math', 'science', 'coding'], True이므로 a4.values()는 ['lee', 50, ['math', 'science', 'coding'], True]라는 리스트가 됨
+a4.items() # (key, value) 튜플형태로 리스트에 담음 
 
 
 #===================================
 # set
 #===================================
-# 집합(set) 자료형 (순서x, 중복x, 순서x)
+# 집합(set) 자료형 (순서x, 중복x, 수정x, 삭제x) 
+# 집합은 수학에서의 집합과 유사한 개념으로, 순서가 없고, 중복이 허용되지 않는 데이터 구조임. 집합은 수정과 삭제가 불가능한 불변(immutable) 자료형이지만, 새로운 원소를 추가하는 것은 가능함.
 
 ### 선언
 a1 = set()
 a2 = {'a', 'b', 'c', 'd'} #키값 없이 {}사용하면 집합
-a3 = [1, 2, 3, 1, 2, "a"]
-a4 = set(a3) # list->set, 중복제거됨
+a3 = [1, 2, 3, 1, 2, "a"] # a3는 중복이 있는 리스트이지만, set(a3)를 하면 a3의 원소 중에서 중복이 제거된 집합이 됨, a3에는 1, 2가 각각 2개씩 중복되어 있지만, set(a3)는 1, 2가 각각 1개씩만 포함된 집합이 됨
+a4 = set(a3) # list->set, 중복제거됨 # {1, 2, 3, 'a'}
 
 ### 연산
-a2 | a4 # 합집합
-a2 - a4 # 차집합
+a2 | a4 # 합집합 # a2와 a4의 원소를 모두 포함하는 집합
+a2 - a4 # 차집합 # a2에는 'a', 'b', 'c', 'd'가 있고, a4에는 1, 2, 3, 'a'가 있으므로 a2 - a4는 a2의 원소 중에서 a4에 없는 원소인 'b', 'c', 'd'가 포함된 집합이 됨
+a2 & a4 # 교집합 # a2와 a4의 원소 중에서 공통된 원소인 'a'가 포함된 집합이 됨
+a2 ^ a4 # 대칭차집합  # a2와 a4의 원소 중에서 서로 다른 원소인 1, 2, 3, 'b', 'c
 
 ### 리스트의 중복제거
-a5 = list(set(a3)) # set->list
+a5 = list(set(a3)) # set->list # 중복을 제거한 리스트를 만드는 방법 
 
 
 #===================================
 # if (조건문)
 #===================================
-### 논리연산자 (boolean)
+### 논리연산자 (boolean) 
 a, b, c = 10, 20, 30
 
-a<b and b>c
+a<b and b>c 
 a<b or b>c
 not a>b
 
-x1 = [1, 2, 3]
-x2 = {7, 8, 9, 10}
-x3 = (5, 6, 7)
-x4 = {'name' : 'Lee', 'city' : "jinju", 'grade' : 'B'}
+x1 = [1, 2, 3] # 리스트는 순서가 있고, 중복이 허용되는 자료형이므로 x1은 리스트가 됨, x1에는 1, 2, 3이라는 원소가 순서대로 포함되어 있음
+x2 = {7, 8, 9, 10} # 집합은 순서가 없고, 중복이 허용되지 않는 자료형이므로 x2는 집합이 됨, x2에는 7, 8, 9, 10이라는 원소가 포함되어 있지만, 순서는 정해져 있지 않음
+x3 = (5, 6, 7) # 튜플은 순서가 있고, 중복이 허용되는 자료형이지만, 수정과 삭제가 불가능한 불변(immutable) 자료형이므로 x3는 튜플이 됨, x3에는 5, 6, 7이라는 원소가 순서대로 포함되어 있지만, 원소를 수정하거나 삭제할 수는 없음
+x4 = {'name' : 'Lee', 'city' : "jinju", 'grade' : 'B'} # 딕셔너리는 순서가 없고, 중복이 허용되지 않는 자료형이지만, 수정과 삭제가 가능한 가변(mutable) 자료형이므로 x4는 딕셔너리가 됨, x4에는 'name', 'city', 'grade'라는 key와 각각의 value인 'Lee', 'jinju', 'B'가 포함되어 있지만, 순서는 정해져 있지 않음
 
-20 in x1
-90 in x2
-12 not in x3
-'name' in x4
-'name' in x4.keys()
-'seoul' in x4.values()
+20 in x1 # x1에 20이 포함되어 있는지 확인
+90 in x2 # x2에 90이 포함되어 있는지 확인
+12 not in x3 # x3에 12이 포함되어 있지 않은지 확인
+'name' in x4 # x4에 'name'이라는 key가 있는지 확인
+'name' in x4.keys() # x4의 key 중에 'name'이 있는지 확인
+'seoul' in x4.values() # x4의 value 중에 'seoul'이 있는지 확인
 
 ### 조건문
 score, grade = 85, 'A+'
@@ -379,16 +384,17 @@ else:
 #===================================
 total = 0
 for v in range(1, 11):
-    total += v
-sum(range(1,11))
+    total += v # range(1, 11)은 1부터 10까지의 숫자를 생성하는 함수이므로, for v in range(1, 11)은 v가 1부터 10까지의 숫자를 순서대로 받는 반복문이 됨, total += v는 total = total + v와 동일한 의미로, total에 v를 더해서 다시 total에 저장하라는 의미이므로, total은 1부터 10까지의 숫자의 합인 55가 됨
+print(total)
+print(sum(range(1,11))) # 동일한 결과 # range(1, 11)은 1부터 10까지의 숫자를 생성하는 함수이므로, sum(range(1, 11))은 1부터 10까지의 숫자의 합인 55가 됨
 
 ### for문 이용한 중복제거
 a1 = [9, 1, 2, 8, 4, 5, 2, 1, 3, 4, 4]
 a1_new = list()
 for item in a1:
     if item not in a1_new:
-        a1_new.append(item)
-print(a1_new)
+        a1_new.append(item) # a1_new에 item이 없으면 a1_new에 item을 추가하라는 의미이므로, a1_new에는 a1의 원소 중에서 중복이 제거된 원소들이 순서대로 포함되어 있음
+print(sorted(a1_new)) # sorted(a1_new)는 a1_new의 원소를 오름차순으로 정렬한 리스트를 반환하므로, sorted(a1_new)는 a1의 원소 중에서 중복이 제거되고 오름차순으로 정렬된 리스트가 됨
 print(set(a1)) # 동일한 결과
 
 ### 사전에 for문 적용
@@ -399,14 +405,14 @@ a2 = dict(
   enrolled = True
 )
 for key, value in a2.items():
-    print(f"- key: {key}, value: {value}")
+    print(f"- key: {key}, value: {value}") # a2.items()는 (key, value) 튜플형태로 리스트에 담은 것을 반환하므로, for key, value in a2.items()는 a2의 key와 value를 각각 key와 value라는 변수에 받는 반복문이 됨, print(f"- key: {key}, value: {value}")는 key와 value를 출력하는 명령어이므로, a2의 key와 value가 각각 출력됨
 
 ### break - 반복문에서 빠져나가기
 number_list = [1, 22, 14, 17, 100, 204, 117, 25, 340, 18]
 for number in number_list:
   if number == 17:
     print(f"{number} is in the list!!")
-    break
+    break # 반복문에서 빠져나가라는 의미이므로, number_list에서 17을 찾으면 "17 is in the list!!"가 출력되고, 반복문이 종료됨
   else:
     print(f"{number} not in the list")
 
@@ -416,8 +422,9 @@ total = 0
 for value in scores:
     if type(value) in [bool, str]:        
         print('type error, skip adding:', value)
-        continue
-    total += value
+        continue # value의 타입이 bool이나 str이면 "type error, skip adding: value"가 출력되고, continue는 이하를 실행하지 않고 반복문을 계속하라는 의미이므로, total += value는 실행되지 않고, 다음 value로 넘어가게 됨
+    total += value # 여기까지 하면 total은 저장만되고 출력안됨 
+print(total) # scores에는 1, 2, 3, "name", 4, True, 5가 포함되어 있지만, "name"은 str타입이고, True는 bool타입이므로, total에는 1, 2, 3, 4, 5가 더해지게 되고, total은 15가 됨
     
 ### enumerate - 인덱스 번호와 컬렉션의 원소를 tuple형태로 반환
 str_list = ['a', 'b', 'c', 'd', 'e']
@@ -429,8 +436,12 @@ for i,v in enumerate(str_list):
   # print(f"index: {i}, value: {v}") # 동일한 결과
 
 ### list내에서 for문
-[i*3 for i in range(5)]
+[i*3 for i in range(5)] # list내에서 for문을 사용할 때는 대괄호로 감싸야 함, i*3 for i in range(5)는 i가 0부터 4까지의 숫자를 순서대로 받는 반복문이면서, i*3은 i에 3을 곱한 값을 의미하므로, [i*3 for i in range(5)]는 0부터 4까지의 숫자에 각각 3을 곱한 값을 순서대로 포함하는 리스트가 됨
 
+new_v = list()
+for i in range(5) :
+  new_v.append(i*3)
+print(new_v) # 동일한 결과
 
 #===================================
 # while
@@ -448,23 +459,25 @@ while n > 0:
 # 함수1
 def func_mul(num):
     new_num = num*2 # new_num은 이 함수내에서만 유효한 지역변수
-    return new_num
+    return new_num # return은 함수의 결과값을 반환하는 명령어, func_mul(10)은 num에 10을 넣어서 func_mul 함수를 실행하라는 의미이므로, func_mul(10)은 new_num = 10*2가 되고, new_num은 20이 되며, return new_num은 20을 반환하라는 의미이므로, func_mul(10)은 20이 됨
 
 a = func_mul(10)
-# new_num # 위 함수내에서만 유효한 지역변수여서 오류발생
+print(a)
+# new_num # 위 함수내에서만 유효한 지역변수여서 오류발생 # new_num은 func_mul 함수내에서만 유효한 지역변수이므로, func_mul 함수 밖에서는 new_num을 사용할 수 없어서 오류가 발생함
 
 # 함수1
-scale = 3 # 전역변수
+scale = 3 # 전역변수 - 함수내에서도 사용가능, 함수 밖에서도 사용가능
 def func_mul2(num):
     new_num = num*scale # 함수내에서도 전역변수 사용가능
     return new_num
-b = func_mul2(10)
 
+b = func_mul2(10)
+print(b)
 
 #===================================
 # lambda 함수
 #===================================
-# lambda 인풋 값: return 값
+# lambda 인풋 값: return 값 # lambda 함수는 간단한 함수를 한 줄로 표현하는 방법으로, lambda 키워드 다음에 인풋 값을 받고, 콜론(:) 다음에 return 값을 표현하는 형태로 작성됨. lambda 함수는 이름이 없는 익명 함수이므로, 변수에 할당해서 사용할 수 있음
 a = lambda x,y: x*y
 a(5,6)
 
@@ -480,8 +493,8 @@ def mul_func(x, y):
 
 ### 패키지 불러오기
 import sys
-# sys.path # 현재 등록된 path 확인
-sys.path.append('/Users/carrot/Dropbox/Learning/inflearn/902_textanalytics_class/class20261/s02_python_basics')
+sys.path # 현재 등록된 path 확인
+sys.path.append(r'C:\Users\seonu\Documents\ewha-marketing_research\session2_python_basic') # 백슬래시 때문에 오류남 /로바꾸거나 r붙이기 # 패키지가 있는 폴더 경로를 sys.path에 추가하여 패키지를 불러올 수 있도록 함
 from mylib import myfunctions
 
 result = myfunctions.add_nums(1,2)
@@ -593,10 +606,11 @@ datetime.date(2018,5,19)  #datetime.date(2018, 5, 19)
 datetime.datetime.strptime("2018-5-12", "%Y-%m-%d")
 
 # 날짜/시간 --> 문자열로 변환 (strftime)
-datetime.datetime.now().strftime('%Y-%m-%d')
+datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S') # 현재 날짜/시간을 '년-월-일-시-분-초' 형태의 문자열로 변환
+
 
 # 특정 지역  시간
-import pytz
+import pytz # pytz는 파이썬에서 시간대(timezone)를 다루기 위한 라이브러리로, 세계 각 지역의 시간대를 지원함. pytz를 사용하면 특정 지역의 현재 시간이나 날짜/시간을 쉽게 구할 수 있음
 KST = pytz.timezone('Asia/Seoul')
 datetime.datetime.now(KST).strftime('%Y-%m-%d-%H-%M-%S')
 datetime.datetime.now(KST).strftime('%Y-%m-%d %H:%M:%S')
