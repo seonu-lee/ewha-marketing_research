@@ -34,10 +34,10 @@ n_students = 30 # 학생 수
 
 ids = range(1, n_students + 1) # ID 생성
 names = [f"Student_{i}" for i in ids] # 이름 생성
-region = np.random.choice(["seoul", "busan", "jinju"], size=n_students) # 지역 생성
+region = np.random.choice(["seoul", "busan", "jinju"], size=n_students) # 지역 생성 # choice(a, size) a에서 size개 만큼 랜덤하게 선택하여 배열로 반환
 
 # 과목별 점수 (50~100)
-math = np.random.randint(50, 101, n_students)
+math = np.random.randint(50, 101, n_students) # randint(a, b, size) a이상 b미만의 정수 중에서 size개 만큼 랜덤하게 생성
 lang = np.random.randint(50, 101, n_students)
 sci = np.random.randint(50, 101, n_students)
 
@@ -56,37 +56,38 @@ score_df
 #=================================
 # DataFrame - 기초
 #=================================
-df = score_df.copy()
+df = score_df.copy() # copy() 를 통해 복사본을 만들어서 조작하여, 원본 데이터프레임은 보존 가능
 
 #--------------------------
 # index, column, value 확인
 #--------------------------
-df.index
-df.columns
-df.values # array 반환
+df.index # RangeIndex(start=0, stop=30, step=1) # index는 행의 위치를 나타내는 레이블, 기본적으로 0부터 시작하는 정수로 구성됨
+df.columns # Index(['id', 'name', 'region', 'math', 'lang', 'science'], dtype='object') # column은 열의 이름을 나타내는 레이블
+df.values # array 반환 # 2차원 배열로 반환, 각 행은 하나의 리스트로 표현됨, 각 열의 값이 리스트에 포함됨 
+#행렬은 2차원 배열로 표현되는 데이터 구조로, 행과 열로 구성되어 있습니다. 각 행은 하나의 데이터 레코드를 나타내며, 각 열은 특정 속성이나 변수를 나타냅니다. 예를 들어, 학생들의 점수 데이터를 행렬로 표현하면, 각 행은 한 학생의 점수 정보를 담고 있고, 각 열은 수학, 언어, 과학 등의 과목을 나타낼 수 있습니다. 행렬은 데이터 분석과 머신러닝에서 자주 사용되는 데이터 구조입니다.
 
 ### 기초 정보
-df.info()
-df.describe()
-df.shape
+df.info() # 데이터프레임의 각 열에 대한 정보(데이터 타입, 결측치 여부 등)를 보여줌
+df.describe() # 수치형 데이터의 요약 통계량을 보여줌 (평균, 표준편차, 최소값, 25%값, 50%값, 75%값, 최대값)
+df.shape # (행의 수, 열의 수) 형태로 데이터프레임의 크기를 반환
 
 ### index 설정
-df = df.set_index('id') # column를 index로 변경하기
-df.index.name = '번호' # index 이름 변경
+df = df.set_index('id') # column를 index로 변경하기 # id 컬럼을 index로 설정하여, 행의 레이블로 사용함
+df.index.name = '번호' # index 이름 변경 
 
 df1 = df.reset_index() # index 데이터를 column으로 변경하기
-df2 = df.reset_index(drop=True) # index를 0부터 시작하여 다시 매길때 (기존 index 삭제)
+df2 = df.reset_index(drop=True) # 기존 index 삭제하고 index를 0부터 시작하여 다시 매길때 
 
 #--------------------------
 # column 선택, 추가, 삭제
 #--------------------------
 df = score_df.copy()
-df['math'] # 특정 컬럼 series로 가져오기
+df['math'] # 특정 컬럼 series로 가져오기 
 df[['math', 'science']] # 여러 개 컬럼 선택
 df['enrolled'] = True # 컬럼추가
-del df['enrolled'] # 컬럼삭제 - 원본데이터에 즉시 적용됨
+del df['enrolled'] # 컬럼삭제 - 원본데이터에 즉시 적용됨 
 df1 = df.drop(["math", "lang"], axis=1, inplace=False) # 컬럼삭제, inplace=True이면 원본데이터에 적용
-df2 = df.drop(columns=['math', 'lang'])
+df2 = df.drop(columns=['math', 'lang']) # 컬럼삭제, columns=삭제할 컬럼명, inplace=False이면 원본데이터에 적용
 
 ### column 타입 변경
 df = score_df.copy()
@@ -133,7 +134,7 @@ df2 = df
 print(id(df), id(df2))
 df2['science'] = 100
 print(df2)
-print(df) 
+print(df)  # df2에서 'science' 컬럼의 값을 100으로 변경했지만, df에서도 'science' 컬럼의 값이 100으로 변경됨. 이는 df와 df2가 같은 객체를 참조하고 있기 때문임. 따라서 df와 df2는 동일한 데이터프레임을 가리키고 있으며, 하나를 변경하면 다른 하나도 변경되는 결과가 나타남. copy()를 사용하여 df2를 생성하면, df와 df2는 서로 다른 객체가 되어, 하나를 변경해도 다른 하나에는 영향을 미치지 않음.
 
 ### copy()를 사용하는 경우
 df = score_df.copy() # copy() 를 통해 복사본을 만들어서 조작하여, 원본 데이터프레임은 보존 가능
@@ -142,19 +143,19 @@ df2 = df.copy()
 print(id(df), id(df2))
 df2['science'] = 100
 print(df2)
-print(df) 
+print(df)  # df2에서 'science' 컬럼의 값을 100으로 변경했지만, df에서는 'science' 컬럼의 값이 변경되지 않음. 이는 df와 df2가 서로 다른 객체를 참조하고 있기 때문임. 따라서 df와 df2는 서로 다른 데이터프레임을 가리키고 있으며, 하나를 변경해도 다른 하나에는 영향을 미치지 않음.
 
 #--------------------------
 # 정렬
 #--------------------------
 df = score_df.copy() 
 
-df.sort_values(by='math', ascending=False)
-df.sort_values(by=['region', 'math'], ascending=[True, False])
+df.sort_values(by='math', ascending=False) # by=정렬할 컬럼명, ascending=True(오름차순), False(내림차순)
+df.sort_values(by=['region', 'math'], ascending=[True, False]) # region을 오름차순으로 정렬한 후, region이 같은 경우 math를 내림차순으로 정렬함. by=정렬할 컬럼명 리스트, ascending=각 컬럼별 정렬 방식 리스트
 
 
 #=================================
-# 판다스 문자열 처리 - Series.str 
+# 판다스 문자열 처리 - Series.str # Series.str - 문자열 데이터를 다루는 다양한 메서드를 제공하는 속성
 #=================================
 
 #--------------------------
@@ -182,10 +183,10 @@ def make_comment():
     text = ""
     while len(text) < 30:
         text += random.choice(fragments) + " "
-    return text
+    return text # 30자 이상이 될 때까지 fragments에서 무작위로 문장을 선택하여 text에 추가하는 함수
 
 df = score_df.copy() 
-df['comment'] = [make_comment() for _ in range(n_students)]
+df['comment'] = [make_comment() for _ in range(n_students)] # make_comment() 함수를 n_students 만큼 호출하여 comment 컬럼에 저장
 
 #--------------------------
 # Series.str
@@ -193,11 +194,11 @@ df['comment'] = [make_comment() for _ in range(n_students)]
 # https://pandas.pydata.org/docs/reference/api/pandas.Series.str.html
 
 df['comment'].str.replace(' ', '')
-df['comment'].str.replace('수학|과학', 'STEM', regex=True)
-df['comment'].str.replace(pat='[^A-Za-z]', repl='', regex=True) # 대소문자만 남기기
-df['comment'].str.replace(pat='[^가-힣]', repl='', regex=True) # 한글만 남기기
+df['comment'].str.replace('수학|과학', 'STEM', regex=True) # '수학' 또는 '과학'이 포함된 부분을 'STEM'으로 대체함. regex=True는 패턴이 정규표현식임을 나타냄. '|'는 OR 연산자 역할을 함.
+df['comment'].str.replace(pat='[^A-Za-z]', repl='', regex=True) # 대소문자만 남기기 # 정규표현식에서 ^는 부정의 의미, [] 안에 A-Z와 a-z를 제외한 모든 문자를 의미함. 따라서 대소문자만 남기고 나머지 문자는 제거됨.
+df['comment'].str.replace(pat='[^가-힣]', repl='', regex=True) # 한글만 남기기 # 정규표현식에서 ^는 부정의 의미, [] 안에 가-힣을 제외한 모든 문자를 의미함. 따라서 한글만 남기고 나머지 문자는 제거됨.
 
-df[df['comment'].str.startswith('수학')]
+df[df['comment'].str.startswith('수학')] # comment가 '수학'으로 시작하는 행 선택
 df[df['comment'].str.contains('수학')]
 
 
@@ -209,11 +210,12 @@ df[df['comment'].str.contains('수학')]
 ### 예) 개별과목점수을 이용하여 새로운 점수를 계산하려고 함
 # 방법1
 def calc_uni_score(row):
-    # print(row) # row 확인용
+    print(row) # row 확인용
     uni_score = row['math']*0.7 + row['science']*0.2 + row['lang']*0.1
-    return uni_score
-df.apply(calc_uni_score, axis=1)
-df.apply(lambda row: calc_uni_score(row), axis=1) # 위와 동일
+    return uni_score # row의 math, science, lang 컬럼의 값을 이용하여 uni_score 계산하는 함수
+
+df.apply(calc_uni_score, axis=1) # df의 각 행(row)에 대해 calc_uni_score 함수를 적용하여 uni_score 계산, axis=1은 행 단위로 함수를 적용하겠다는 의미, axis=0은 열 단위로 함수를 적용하겠다는 의미
+df.apply(lambda row: calc_uni_score(row), axis=1) # 위와 동일 # lambda함수로 calc_uni_score 함수를 간결하게 표현, lambda row: calc_uni_score(row) 는 입력값 row에 대해 calc_uni_score 함수를 적용하는 익명 함수(람다 함수)를 정의하는 표현식
 # 방법2
 df.apply(lambda row: row['math']*0.7 + row['science']*0.2 + row['lang']*0.1, axis=1) # 위와 동일한 결과 - 간결
 
@@ -237,10 +239,10 @@ df_w_grade['grade'] = df_w_grade.apply(calc_uni_score2, axis=1)
 #=================================
 df = score_df.copy() 
 
-df[df['region']=='jinju']
-df[(df['region']=='jinju') & (df['math']>90)]
-df[(df['region']=='jinju') | (df['region']=='busan')]
-df[df['region'].isin(['jinju', 'busan'])]
+df[df['region']=='jinju'] # region이 jinju인 행 선택
+df[(df['region']=='jinju') & (df['math']>90)] # region이 jinju이고 math 점수가 90보다 큰 행 선택
+df[(df['region']=='jinju') | (df['region']=='busan')] # region이 jinju이거나 busan인 행 선택
+df[df['region'].isin(['jinju', 'busan'])] # region이 jinju 또는 busan인 행 선택
 
 
 #=================================
@@ -296,14 +298,18 @@ df_w_grade['grade'] = df_w_grade.apply(calc_uni_score2, axis=1)
 #--------------------------
 # groupby()
 #--------------------------
-df_w_grade.groupby('region').mean()
+df_w_grade.groupby('region').mean() # region별로 그룹핑한 후, 각 그룹의 수치형 컬럼의 평균값 계산
+# 최신 버전의 pandas에서는 숫자가 아닌 컬럼이 섞여 있을 때 mean()을 호출하면 자동으로 걸러주지 않고 에러를 발생시킵니다.
+df_w_grade.groupby('region').mean(numeric_only=True) # region별로 그룹핑한 후, 각 그룹의 수치형 컬럼의 평균값 계산, numeric_only=True는 숫자형 컬럼에 대해서만 평균을 계산하겠다는 의미
+df_w_grade.groupby('region')['science'].mean() # 'region'으로 묶고, 'science' 컬럼에 대해서만 평균 구하기
+
 
 # groupby 내용 확인
 for group_each in df_w_grade.groupby('region'):
-    print(group_each)
+    print(group_each) # groupby('region')으로 묶은 각 그룹에 대해서, 그룹의 이름과 그룹에 속한 데이터프레임이 튜플 형태로 반환됨. 예를 들어, ('seoul', seoul_group_df) 는 'seoul' 그룹의 이름과 'seoul' 그룹에 속한 데이터프레임을 나타냄. 이 반복문을 통해 각 그룹의 이름과 해당 그룹의 데이터를 확인할 수 있음.
 
 #--------------------------
-# agg
+# agg # 여러 개의 집계 함수를 한 번에 적용할 때 사용
 #--------------------------
 df_w_grade.agg('mean')
 
@@ -314,7 +320,7 @@ df_agged = df_w_grade.groupby('region').agg({'id': 'count', 'math': 'mean', 'lan
 df_agged = df_agged.rename(columns={'id': '숫자', 'math': '수학평균값', 'lang': '언어중간값'})
 
 df_agged = df_w_grade.groupby(['region', 'grade']).agg({'id': 'count', 'math': 'mean', 'lang': 'median'})
-df_agged = df_w_grade.groupby(['region', 'grade'], as_index=False).agg({'id': 'count', 'math': 'mean', 'lang': 'median'})
+df_agged = df_w_grade.groupby(['region', 'grade'], as_index=False).agg({'id': 'count', 'math': 'mean', 'lang': 'median'}) # as_index=False는 그룹핑한 컬럼이 index로 설정되지 않도록 하는 옵션, 그룹핑한 컬럼이 index로 설정되지 않으면, 그룹핑한 컬럼이 일반 컬럼으로 남아있게 되어, 이후에 그룹핑한 컬럼을 기준으로 정렬하거나 다른 연산을 수행할 때 편리함
 
 df_w_grade.groupby('region')['grade'].agg(lambda row: row.to_list()) # region 기준 grouping한 후, 각 region의 grade를 리스트로 반환
 
@@ -344,7 +350,7 @@ df1 = score_df.head(20)
 
 df2 = score_df.copy() 
 df2['grade'] = df2.apply(calc_uni_score2, axis=1)
-df2 = df2[['name', 'grade']].sample(20)
+df2 = df2[['name', 'grade']].sample(20) # df2는 name과 grade 컬럼만 가지고 있고, name은 score_df의 name 컬럼에서 무작위로 20개 선택한 값으로 구성되어 있음. grade는 calc_uni_score2 함수를 적용하여 계산된 값임. df1과 df2는 name 컬럼을 기준으로 합칠 수 있음.
 
 
 ### df와 df_grade 합치기
@@ -374,13 +380,13 @@ df = score_df.copy()
 # 실습용 birth_date 컬럼 생성
 # -------------------------------
 from datetime import datetime, timedelta
-start_date = datetime(2000, 1, 1) # 기준 시작일 (예: 2000년 1월 1일)
+start_date = datetime(2000, 1, 1) # 기준 시작일 (예: 2000년 1월 1일) # datetime(year, month, day) 특정 날짜를 나타내는 datetime 객체를 생성하는 함수
 birth_dates = [(start_date + timedelta(days=random.randint(0, 365*5))).strftime("%Y--%m--%d") for _ in range(len(df))] # 무작위 날짜 생성 (2000년 ~ 2005년 사이)
-df['birth_date'] = birth_dates
+df['birth_date'] = birth_dates #문자열임 
 
 
 ### 문자열 날짜/시간 --> datetime 날짜/시간으로 변환
-df['birth_date1']= pd.to_datetime(df['birth_date'], format='%Y--%m--%d', errors='raise') # datetime64, format에는 원본데이터에 사용된 날짜형식을 적음
+df['birth_date1']= pd.to_datetime(df['birth_date'], format='%Y--%m--%d', errors='raise') # datetime64, format에는 원본데이터에 사용된 날짜형식을 적음 # errors='raise'는 변환할 수 없는 값이 있을 때 에러를 발생시키겠다는 의미, errors='coerce'는 변환할 수 없는 값을 NaT로 대체하겠다는 의미, errors='ignore'는 변환할 수 없는 값을 원래 값으로 유지하겠다는 의미
 df.info()
 
 # 시간 변수 추출
@@ -409,14 +415,21 @@ df = score_df.copy()
 # utf-8 전세계 대부분의 문자를 표현할 수 있는 인코딩 방식
 # sig는 엑셀 호환성위해 사용: 'utf-8'로만 하면 엑셀에서 제대로 인지하지 못하여 한글이 깨지는 경우가 있음. sig (signature)를 붙여 utf-8임을 인지할 수 있도록 함
 
-df.to_csv('', encoding='utf-8-sig', index=False) # index=False 인덱스는 저장하지 않음
+df.to_csv('C:\\Users\\seonu\\Documents\\ewha-marketing_research\\session2_python_basic\\result_data\\score_data.csv', encoding='utf-8-sig', index=False) # index=False 인덱스는 저장하지 않음
 
 ### csv 파일 dataframe으로 불러오기
-df_loaded = pd.read_csv('', encoding='utf-8-sig')
+df_loaded = pd.read_csv('C:\\Users\\seonu\\Documents\\ewha-marketing_research\\session2_python_basic\\result_data\\score_data.csv', encoding='utf-8-sig')
+df_loaded
 
 ### 폴더생성
 import os
 
-PATH_to_save = ""
-os.makedirs(PATH_to_save)
+# 1. 만들고 싶은 폴더 이름을 정합니다. (예: 'result_data')
+PATH_to_save = "C:\\Users\\seonu\\Documents\\ewha-marketing_research\\session2_python_basic\\result_data"
+
+# 2. 만약 해당 폴더가 이미 있으면 에러가 날 수 있으므로, 
+#    'exist_ok=True' 옵션을 넣어주는 것이 좋습니다.
+os.makedirs(PATH_to_save, exist_ok=True)
+
+# 3. 이제 아까 작성했던 코드를 이 폴더 안에 저장하도록 연결합니다.
 
