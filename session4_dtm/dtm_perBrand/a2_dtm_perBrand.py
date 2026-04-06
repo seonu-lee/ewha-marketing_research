@@ -72,8 +72,8 @@ import numpy as np
 #=================================
 # 공통 설정
 #=================================
-PATH_to_data = ""
-PATH_to_save = ""
+PATH_to_data = r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results"
+PATH_to_save = r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results"
 
 #=================================
 # 브랜드별 리뷰 -> dtm 만들기
@@ -296,6 +296,27 @@ if __name__ == "__main__":
     # brand_reviews_dtm = create_dtm_perBrand(input_file_name, min_df_rate, max_df_rate, min_review_prop_in_doc, min_doc_count_finally, manual_stopwords)
 
 
+# 결과 분석
+
+# 제거된 희소단어 (302,627개)
+
+# 전체 305,676개 단어 중 99%가 희소단어로 제거됨. 
+#  `'__'`, `'___'` 같은 특수문자 잔재랑 `'麻辣鍋'`, `'點心'` 같은 중국어/한자 단어들이 포함되어 있음.
+# 전처리 단계에서 완전히 걸러지지 않은 노이즈들이 여기서 제거된 것으로 보임.
+
+# ---
+
+# 제거된 공통단어 (112개)
+
+# 90% 이상의 브랜드에서 등장하는 단어들인데, 보면 `'food'`, `'good'`, `'great'`, `'delici'`, `'order'`, `'servic'` 같이 레스토랑 리뷰에서 거의 항상 나오는 단어들임.
+# 모든 브랜드에 공통으로 나오니까 브랜드 간 변별력이 없어서 제거된 것으로 보임.
+
+# ---
+
+# 조건1, 2 결과가 동일한 이유
+
+# 2.1 단계(df_rate 필터링)는 두 조건이 완전히 같은 파라미터(`min=0.1, max=0.9`)라서 출력이 동일한 것으로 보임.
+# 조건1, 2의 차이는 2.2 단계(`min_review_prop_in_doc`: 0.3 vs 0.1)에서 나타나는 거라 여기선 동일하게 보이는 게 정상.
 
 
 

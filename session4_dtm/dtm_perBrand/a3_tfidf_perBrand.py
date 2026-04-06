@@ -45,8 +45,8 @@ meta_cols_pool = ['user_id', 'name', 'review_count', 'avg_stars', 'useful_count'
 #=================================
 # 공통 설정
 #=================================
-PATH_to_data = ""
-PATH_to_save = ""
+PATH_to_data = r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results"
+PATH_to_save = r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results"
 
 
 #=================================
@@ -105,11 +105,28 @@ if __name__ == "__main__":
     dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_0.9_0.3_10_dtm'
     df_tfidf = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=False)
     df_tfidf_l2 = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=True)
+    print("=== 조건1 ===")
+    print(df_tfidf.shape)
+    print(df_tfidf_l2.shape)
 
     dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_0.9_0.1_10_dtm'
     df_tfidf = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=False)
     df_tfidf_l2 = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=True)
+    print("=== 조건2 ===")
+    print(df_tfidf.shape)
+    print(df_tfidf_l2.shape)
 
 
+# === 조건1 ===
+# (5151, 344)
+# (5151, 344) # L2 적용해도 (5151, 344) — 단어 목록은 그대로, 값만 0~1로 압축
+# === 조건2 ===
+# (5151, 1433)
+# (5151, 1433)
 
+# 컬럼 수에서 메타데이터 8개 빼면 실제 단어 수
 
+# 차이가 나는 이유
+# min_review_prop_in_doc 기준이 다르기 때문
+# 조건1 (0.3): 브랜드 리뷰의 30% 이상에 등장한 단어만 살림 → 엄격해서 단어 적게 남음
+# 조건2 (0.1): 브랜드 리뷰의 10% 이상에 등장한 단어만 살림 → 느슨해서 단어 많이 남음
