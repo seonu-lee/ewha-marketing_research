@@ -161,37 +161,88 @@ print(f"TF-IDF+L2 mean={sim_tfidf_l2[upper_idx].mean():.3f}, std={sim_tfidf_l2[u
 
 
 #=================================
-
-# 브랜드 목록 확인
-print(df_dtm_10['name'].tolist())
-
-
-# Buffets 카테고리 브랜드 목록 및 기본 정보 확인
-buffet_brands = df_dtm_09[df_dtm_09['categories'].str.contains('Buffet', na=False)][
-    ['name', 'review_count', 'avg_stars', 'categories']
-].sort_values('review_count', ascending=False)
-
-print(f"Buffets 카테고리 브랜드 수: {len(buffet_brands)}")
-print(buffet_brands.to_string())
-
-from sklearn.metrics.pairwise import cosine_similarity
-import pandas as pd
-
-# 1. 리뷰 수 상위 15개만 추리기
-buffet_top = buffet_brands.head(15)
-print("=== 리뷰 수 상위 15개 뷔페 브랜드 ===")
-print(buffet_top[['name', 'review_count', 'avg_stars']].to_string())
-
-# 2. 해당 브랜드들 간 코사인 유사도 계산
-buffet_names = buffet_top['name'].tolist()
-X_tfidf_10 = df_dtm_10.set_index('name')[word_cols_10]
-buffet_sim = cosine_similarity(X_tfidf_10.loc[buffet_names])
-buffet_sim_df = pd.DataFrame(buffet_sim, index=buffet_names, columns=buffet_names)
-
-print("\n=== 브랜드 간 코사인 유사도 ===")
-print(buffet_sim_df.round(3).to_string())
-
+# 브랜드 선정
 #=================================
+
+# NV vs AZ 카테고리 비율 비교
+# AZ 데이터 불러오기
+df_az = pd.read_csv(r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results\reviews_restaurants_az_perBrand_0.1_0.9_0.3_10_dtm.csv")
+
+# NV 카테고리 비율
+nv_cats = df_dtm_09['categories'].dropna().str.split(';').explode().str.strip()
+nv_cat_rate = (nv_cats.value_counts() / len(df_dtm_09) * 100).round(2)
+
+# AZ 카테고리 비율
+az_cats = df_az['categories'].dropna().str.split(';').explode().str.strip()
+az_cat_rate = (az_cats.value_counts() / len(df_az) * 100).round(2)
+
+# 비교 테이블
+cat_compare = pd.DataFrame({
+    'NV_rate(%)': nv_cat_rate,
+    'AZ_rate(%)': az_cat_rate
+}).dropna().sort_values('NV_rate(%)', ascending=False).head(30)
+
+cat_compare['NV_vs_AZ'] = (cat_compare['NV_rate(%)'] - cat_compare['AZ_rate(%)']).round(2)
+print(cat_compare.sort_values('NV_vs_AZ', ascending=False).head(20))
+
+# Japanese, Steakhouses, Seafood가 NV 특화 카테고리임
+# 라스베이거스 고급 다이닝 문화(스테이크하우스, 씨푸드)와 아시아계 관광객 특성(일식, 아시아 퓨전)이 반영된 결과
+
+# 리뷰 수 상위 30개 브랜드 간 코사인 유사도 확인
+top30 = df_dtm_09.sort_values('review_count', ascending=False).head(30)['name'].tolist()
+top30 = [b for b in top30 if b in X_tfidf_10.index]
+
+sim_matrix = cosine_similarity(X_tfidf_10.loc[top30])
+sim_df = pd.DataFrame(sim_matrix, index=top30, columns=top30)
+
+# 0.5~0.8 구간인 쌍 추출
+pairs = []
+for i in range(len(top30)):
+    for j in range(i+1, len(top30)):
+        sim = sim_matrix[i][j]
+        if 0.5 <= sim <= 0.8:
+            pairs.append({
+                'brand_A': top30[i], 
+                'brand_B': top30[j], 
+                'similarity': round(sim, 3)
+            })
+
+pairs_df = pd.DataFrame(pairs).sort_values('similarity', ascending=False)
+print(f"0.5~0.8 구간 쌍 수: {len(pairs_df)}개")
+print(pairs_df.to_string())
+
+# NV 특화 카테고리 필터 적용
+nv_special_cats = ['Japanese', 'Steakhouses', 'Seafood']
+
+def has_nv_cat(brand_name):
+    row = df_dtm_09[df_dtm_09['name'] == brand_name]
+    if len(row) == 0:
+        return False
+    cats = str(row['categories'].values[0])
+    return any(cat in cats for cat in nv_special_cats)
+
+# 두 브랜드 중 적어도 하나가 NV 특화 카테고리인 쌍 필터링
+pairs_df['A_nv'] = pairs_df['brand_A'].apply(has_nv_cat)
+pairs_df['B_nv'] = pairs_df['brand_B'].apply(has_nv_cat)
+pairs_nv = pairs_df[pairs_df['A_nv'] | pairs_df['B_nv']].copy()
+
+# 카테고리 정보 추가
+pairs_nv['cat_A'] = pairs_nv['brand_A'].apply(
+    lambda x: df_dtm_09[df_dtm_09['name']==x]['categories'].values[0] if len(df_dtm_09[df_dtm_09['name']==x]) > 0 else '')
+pairs_nv['cat_B'] = pairs_nv['brand_B'].apply(
+    lambda x: df_dtm_09[df_dtm_09['name']==x]['categories'].values[0] if len(df_dtm_09[df_dtm_09['name']==x]) > 0 else '')
+
+print(f"NV 특화 카테고리 포함 쌍 수: {len(pairs_nv)}개")
+print(pairs_nv[['brand_A', 'brand_B', 'similarity', 'cat_A', 'cat_B']].head(20).to_string())
+
+# 리뷰 수 확인
+top_pairs = ['monamigabi', 'yardhouse', 'gangnamasianbbqdining', 
+             'grandluxcafe', 'gordonramsaysteak', 'lotusofsiam']
+
+print(df_dtm_09[df_dtm_09['name'].isin(top_pairs)][
+    ['name', 'review_count', 'avg_stars', 'categories']
+].sort_values('review_count', ascending=False).to_string())
+
 
 #=================================
 # 3. 고유단어 추출 함수 정의
@@ -216,13 +267,19 @@ def extracting_unique_words_for_brand(data_tf, df_tf, brand_name):
 #=================================
 # 4. 브랜드별 고유단어 추출
 #=================================
-brand_A = 'bacchanalbuffet'
-brand_B = 'genkoreanbbqhouse'
+brand_A = 'monamigabi'
+brand_B = 'gangnamasianbbqdining'
 
+# 기본 정보 확인
+print(df_dtm_09[df_dtm_09['name'].isin([brand_A, brand_B])][
+    ['name', 'review_count', 'avg_stars', 'categories']
+].to_string())
+
+# 고유단어 추출
 df_logodds_A = extracting_unique_words_for_brand(data_tf_10, df_dtm_10, brand_A)
 df_logodds_B = extracting_unique_words_for_brand(data_tf_10, df_dtm_10, brand_B)
 
-print(f"===== {brand_A} 고유단어 상위 10개 =====")
+print(f"\n===== {brand_A} 고유단어 상위 10개 =====")
 print(df_logodds_A.head(10))
 print(f"\n===== {brand_A} 고유단어 하위 10개 =====")
 print(df_logodds_A.tail(10))
@@ -234,28 +291,29 @@ print(df_logodds_B.tail(10))
 
 # [인사이트] 브랜드별 고유단어 분석
 
+# monamigabi 고유단어
 
-# bacchanalbuffet 고유단어
+# 상위 단어: `bellagio`(140.1), `french`(134.3), `view`(114.0), `steak`(104.7), `reserv`(75.1), `outsid`(74.8), `crepe`(59.4), `seat`(56.2), `watch`(52.3), `brunch`(52.0)
 
-# 상위 단어: `buffet`(279.7), `line`(143.9), `leg`(139.4), `station`(137.6), `crab`(134.3), `seafood`(110.3), `dessert`(93.6), `oyster`(78.6)
+# 벨라지오 호텔 내 프렌치 스테이크하우스의 특성이 뚜렷하게 드러남. `bellagio`가 압도적 1위로 호텔 브랜드 정체성이 강하고, `view`(분수 뷰), `outsid`(야외 테라스), `watch`(분수쇼 관람)가 함께 등장해 벨라지오 분수 뷰 다이닝 경험이 핵심 고유 특성임을 시사함. `reserv`(예약)이 높은 것은 고급 레스토랑으로 사전 예약이 필수적임을 반영함.
 
-# 카지노 호텔 대형 뷔페의 특성이 잘 드러남. `station`(음식 스테이션), `line`(줄 서기), `select`(선택) 등 뷔페 운영 방식에 대한 언급이 많고, `crab`, `seafood`, `oyster`, `leg`(킹크랩 다리) 등 고급 해산물 메뉴가 핵심 고유단어로 나타남.
+# 하위 단어: `fast`(-21.7), `order`(-20.6), `drink`(-19.1), `place`(-18.0), `custom`(-17.4)
 
-# 하위 단어: `order`(-53.8), `place`(-42.8), `servic`(-34.5), `restaur`(-33.8)
-
-# `order`와 `servic`이 낮다는 건 뷔페 특성상 주문/서비스 개념이 약함을 반영함.
+# `fast`, `order`, `custom` 등이 낮은 것은 패스트푸드/캐주얼 다이닝과 완전히 다른 파인다이닝 포지셔닝을 반영함.
 
 # ---
 
-# genkoreanbbqhouse 고유단어
+# gangnamasianbbqdining 고유단어
 
-# 상위 단어: `korean`(85.5), `bbq`(55.8), `server`(46.7), `meat`(45.2), `ayc`(38.6), `belli`(33.5), `grill`(31.2), `brisket`(28.9)
+# 상위 단어: `korean`(128.4), `bbq`(89.2), `meat`(77.0), `combo`(29.0), `beef`(28.4), `happi`(28.1), `belli`(27.3), `miso`(26.3), `great`(24.4), `hour`(22.9)
 
-# 한국식 BBQ 특성이 뚜렷하게 나타남. `ayc`(All You Can eat), `belli`(삼겹살), `brisket`(차돌박이) 등 한국 BBQ 메뉴 용어가 고유단어로 부각됨. `server`와 `tabl`이 높은 것은 고기를 직접 구워주는 테이블 서비스 방식을 반영함.
+# 한국식 BBQ 퓨전 레스토랑 특성이 명확하게 나타남. `korean`, `bbq`, `meat`, `belli`(삼겹살), `miso`(미소된장) 등 한국·일본 퓨전 메뉴가 고유단어로 부각됨. `combo`와 `hour`가 높은 것은 세트 메뉴 구성과 긴 체류 시간이 특징임을 시사함.
 
-# 하위 단어: `buffet`(-9.5), `strip`(-8.5), `vega`(-8.6), `fri`(-11.3)
+# 하위 단어: `fri`(-13.6), `drink`(-11.7), `bar`(-11.4), `steak`(-10.8), `buffet`(-10.9)
 
-# `strip`과 `vega`가 낮다는 건 라스베이거스 스트립 관광객보다 로컬 고객 중심임을 시사함.
+# `steak`와 `buffet`이 낮은 것은 같은 NV 특화 카테고리 브랜드(monamigabi, 뷔페)와 명확하게 구분되는 포지셔닝을 보여줌.
+
+
 
 #=================================
 # 5. 두 브랜드 비교 테이블
@@ -326,22 +384,6 @@ print(nearest_brands(brand_A, X_tfidf_10, topn=10))
 print(f"\n===== {brand_B} 경쟁 브랜드 =====")
 print(nearest_brands(brand_B, X_tfidf_10, topn=10))
 
-# [인사이트] 경쟁 브랜드 추출
-
-
-# bacchanalbuffet 경쟁 브랜드
-
-# 상위 10개가 모두 뷔페 브랜드로 구성됨. 
-# `thebuffet`(0.957), `thebuffetatbellagio`(0.956), `carnivalworldbuffet`(0.954), `wickedspoon`(0.953) 등 라스베이거스 카지노 호텔 뷔페들이 상위를 차지함. 
-# 단어 사용 패턴 기반 경쟁 관계가 실제 시장의 경쟁 구도(카지노 호텔 뷔페 간 경쟁)와 일치함.
-
-# ---
-
-# genkoreanbbqhouse 경쟁 브랜드
-
-# 상위 10개가 모두 한국식 BBQ 브랜드로 구성됨. 
-# `hwaro`(0.952), `dohkoreanbbq`(0.936), `leeskoreanbbq`(0.933) 등 한국식 BBQ 전문점이 상위를 차지하며, `gyukakujapanesebbq`(0.915)는 한국식은 아니지만 테이블 BBQ 방식을 공유하는 일본식 BBQ로 언어 패턴이 유사하게 나타남.
-
 
 #=================================
 # 7. 경쟁 브랜드 고유단어 분석
@@ -361,41 +403,7 @@ def analyze_competitor_brands(target_brand, X, data_tf, df_tf, topn=10):
         print(f"\n--- {competitor} (유사도: {competitors[competitor]:.3f}) ---")
         print(f"고유단어 상위 10개: {top_words}")
 
-# bacchanalbuffet 경쟁 브랜드 분석
+# 경쟁 브랜드 고유단어 분석
 analyze_competitor_brands(brand_A, X_tfidf_10, data_tf_10, df_dtm_10, topn=10)
-
-# genkoreanbbqhouse 경쟁 브랜드 분석
 analyze_competitor_brands(brand_B, X_tfidf_10, data_tf_10, df_dtm_10, topn=10)
-
-# [인사이트] 경쟁 브랜드 고유단어 분석
-
-# bacchanalbuffet 경쟁 브랜드
-
-# 10개 경쟁 브랜드 모두 `buffet`, `leg`(킹크랩 다리), `crab`, `station`, `line`, `dessert`, `prime`, `select`가 반복적으로 등장함. 
-# 라스베이거스 카지노 호텔 뷔페들이 공통적으로 해산물, 스테이션 방식, 디저트를 핵심 경험으로 제공하고 있음을 시사함.
-
-# 브랜드별 차별화 단어를 보면:
-# - `thebuffetatbellagio` → `bellagio` : 벨라지오 호텔 브랜드 정체성 강조
-# - `carnivalworldbuffet` → `rio` : 리오 호텔 소속
-# - `wickedspoon` → `brunch`, `strawberri`, `mac` : 브런치 메뉴 특화
-# - `spicemarketbuffet` → `market`, `spice`, `groupon` : 가성비 이미지
-# - `thebuffetataria` → `aria`, `indian` : 아리아 호텔 소속, 인도 음식 특화
-
-# 즉 경쟁 브랜드들은 **뷔페라는 공통 포맷 안에서 호텔 브랜드 또는 특정 메뉴로 차별화**하는 전략을 취하고 있음.
-
-# ---
-
-# genkoreanbbqhouse 경쟁 브랜드
-
-# 10개 경쟁 브랜드 모두 `korean`, `bbq`, `meat`, `brisket`(`차돌박이`), `belli`(`삼겹살`), `ayc`(All You Can Eat), `grill`이 반복적으로 등장함. 
-# 한국식 BBQ 시장이 메뉴 구성과 운영 방식(AYCE)이 매우 표준화되어 있음을 반영함.
-
-# 브랜드별 차별화 단어를 보면:
-# - `hwaro` → `shake` : 음료 메뉴 차별화
-# - `leeskoreanbbq` → `servic`, `qualiti` : 서비스 품질 강조
-# - `gangnamasianbbqdining` → `combo`, `miso`, `happi` : 아시아 퓨전 메뉴 포함
-# - `gyukakujapanesebbq` → `japanes`, `miso`, `garlic` : 일본식 BBQ 스타일
-# - `goongkoreanbbqrestaurant` → `side`, `qualiti` : 사이드 메뉴와 품질 강조
-
-# 한국식 BBQ 경쟁 브랜드들은 핵심 메뉴는 동일하지만 서비스 품질, 사이드 메뉴, 퓨전 요소로 미세한 차별화를 시도하고 있음.
 
