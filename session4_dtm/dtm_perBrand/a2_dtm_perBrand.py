@@ -257,7 +257,7 @@ if __name__ == "__main__":
         'your', 'year',
     ]
 
-    ## 조건 1
+    ## 조건 1 #고유단어분석을 위해 max_df_rate = 1.0 으로 설정
     input_file_name = 'reviews_restaurants_az_perBrand'
     min_df_rate = 0.1 # 최소 df(document freq) rate, 각 단어의 등장빈도 비율 (등장 문서 수 / 전체 문서 수)
     max_df_rate = 1.0 # 최대 df(document freq) rate, 각 단어의 등장빈도 비율 (등장 문서 수 / 전체 문서 수)
@@ -265,7 +265,7 @@ if __name__ == "__main__":
     min_doc_count_finally = 10 # 각 단어가 최종 단어 리스트에 포함되기 위해, 해당 단어가 등장해야하는 최소 문서수(브랜드 수)
     brand_reviews_dtm = create_dtm_perBrand(input_file_name, min_df_rate, max_df_rate, min_review_prop_in_doc, min_doc_count_finally, manual_stopwords)
 
-    ## 조건 2
+    ## 조건 2 #고유단어분석을 위해 max_df_rate = 1.0 으로 설정
     input_file_name = 'reviews_restaurants_az_perBrand'
     min_df_rate = 0.1
     max_df_rate = 1.0
@@ -278,7 +278,7 @@ if __name__ == "__main__":
     brand_reviews_dtm.columns.to_list()
 
 
-    # ## 조건 1
+    # ## 조건 1 
     # input_file_name = 'reviews_restaurants_az_perBrand'
     # min_df_rate = 0.1
     # max_df_rate = 0.9

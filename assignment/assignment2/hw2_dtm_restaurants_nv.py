@@ -369,9 +369,17 @@ if __name__ == "__main__":
         'ga', 'mi',  # 의미 불명확한 노이즈 단어 추가
     ]
 
+    # 기존 0.9 조건 (주석 처리)
+    # input_file_name = 'reviews_restaurants_nv_perBrand'
+    # min_df_rate = 0.1
+    # max_df_rate = 0.9
+    # min_review_prop_in_doc = 0.3
+    # min_doc_count_finally = 10
+
+    # 1.0 조건 추가 # HW3에서 max_df_rate 1.0으로 변경하여 공통단어 제거 없이 분석 진행 예정. 비교를 위해 기존 조건도 유지.
     input_file_name = 'reviews_restaurants_nv_perBrand'
     min_df_rate = 0.1
-    max_df_rate = 0.9
+    max_df_rate = 1.0  # 여기만 변경
     min_review_prop_in_doc = 0.3
     min_doc_count_finally = 10
 
