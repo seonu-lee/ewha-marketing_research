@@ -54,6 +54,10 @@ def create_tfidf(data_tf, apply_l2):
 data_tfidf_09 = create_tfidf(data_tf_09, apply_l2=False)
 data_tfidf_l2_09 = create_tfidf(data_tf_09, apply_l2=True)
 
+data_tfidf_10 = create_tfidf(data_tf_10, apply_l2=False)
+X_tfidf_10 = data_tfidf_10.copy()
+X_tfidf_10.index = df_dtm_10['name'].values
+
 print(f"TF-IDF shape: {data_tfidf_09.shape}")
 print(f"TF-IDF+L2 shape: {data_tfidf_l2_09.shape}")
 print(data_tfidf_09.head(3))
@@ -374,9 +378,6 @@ def nearest_brands(target_brand, X, topn=10):
     sim = cosine_similarity(X.loc[[target_brand]], X)[0]
     s = pd.Series(sim, index=X.index).sort_values(ascending=False)
     return s.drop(target_brand).head(topn)
-
-# TF-IDF 기반 유사도 (1.0 DTM)
-X_tfidf_10 = df_dtm_10.set_index('name')[word_cols_10]
 
 print(f"===== {brand_A} 경쟁 브랜드 =====")
 print(nearest_brands(brand_A, X_tfidf_10, topn=10))
