@@ -45,8 +45,8 @@ from pprint import pprint
 #=================================
 # 조건 설정
 #=================================
-PATH_to_data = ""
-PATH_to_save = ""
+PATH_to_data = r"C:\Users\seonu\Documents\ewha-marketing_research\session4_dtm\results"
+PATH_to_save = r"C:\Users\seonu\Documents\ewha-marketing_research\session5_word_level_analysis\results"
 
 #=================================
 # 0. 데이터 불러오기 
@@ -215,7 +215,7 @@ def cal_logodds_for_all_brands(data_tf):
 
 ### 적용 ---------------
 df_logodds_pooled = cal_logodds_for_all_brands(data_tf)
-# data_tf.sum().sort_values(ascending=False).index.to_list() # 컬럼에 있는 단어 리스트 확인 (내림차순)
+data_tf.sum().sort_values(ascending=False).index.to_list() # 컬럼에 있는 단어 리스트 확인 (내림차순)
 
 ### food 라는 단어를 많이 vs 적게 쓰는 브랜드들의 특징
 # 메뉴 폭/전문성?
@@ -253,3 +253,36 @@ nearest_brands(target_brand='mcdonalds', X=X_tfidf_l2, topn=10)
 nearest_brands('subway', X_tfidf_l2, topn=10)
 nearest_brands('chipotlemexicangrill', X_tfidf_l2, topn=10)
 
+######################################
+
+# **[인사이트] 브랜드 수준 분석 결과**
+
+# ---
+
+# **1. 맥도날드 vs 서브웨이 비교 (2×2 테이블)**
+
+# 공통 High 50개, 공통 Low 84개로 두 브랜드가 **패스트푸드 체인**으로서 공유하는 언어 패턴이 뚜렷함. `fast`, `drive`, `locat`, `line`, `manag`, `employe` 등 **운영/효율성** 관련 단어를 공통으로 많이 쓰고, `delici`, `flavor`, `steak`, `server`, `atmospher` 등 **다이닝 경험** 관련 단어를 공통으로 적게 씀.
+
+# 맥도날드 전용 단어(`burger`, `fri`, `egg`, `coffe`, `cream`, `bun`)는 **햄버거·아침식사** 메뉴 중심을 반영하고, 서브웨이 전용 단어(`fresh`, `healthi`, `ingredi`, `bread`, `veggi`, `turkey`, `tuna`)는 **건강·커스터마이징** 브랜드 정체성을 잘 반영함.
+
+# ---
+
+# **2. 단어별 브랜드 사용 차이**
+
+# `food`를 많이 쓰는 브랜드는 `pandaexpress`, `truefoodkitchen`, `chickfila` 등 **다양한 메뉴를 제공하는 체인** 위주이고, 적게 쓰는 브랜드는 `pizzeriabianco`, `grimaldispizzeria`, `bosadonuts` 등 **특정 메뉴에 특화된 전문점** 위주임. 즉 `food`는 메뉴 폭이 넓을수록 더 자주 등장하는 단어임.
+
+# `delici`를 많이 쓰는 브랜드는 `flowerchild`, `coladoscoffeecrepes`, `greennewamericanvegetarian` 등 **건강식·카페·브런치** 계열이고, 적게 쓰는 브랜드는 `mcdonalds`, `buffalowildwings`, `chipotlemexicangrill` 등 **패스트푸드·스포츠바** 계열임. 음식 품질보다 속도·편의를 강조하는 브랜드일수록 `delici` 사용이 낮음.
+
+# `fast`를 많이 쓰는 브랜드는 `innoutburger`, `jimmyjohns`, `chickfila`, `wendys` 등 전형적인 **패스트푸드 체인**이고, 적게 쓰는 브랜드는 `culinarydropout`, `truefoodkitchen`, `pizzeriabianco` 등 **캐주얼 다이닝·피자·브런치** 계열임. 이는 `fast`가 브랜드 포지셔닝을 구분하는 핵심 단어임을 시사함.
+
+# ---
+
+# **3. 경쟁 브랜드 추출 (코사인 유사도)**
+
+# 맥도날드의 경쟁 브랜드는 `jackinthebox`(0.939), `wendys`(0.938), `sonicdrivein`(0.904) 등 **드라이브스루 중심 패스트푸드 체인**으로 실제 시장 경쟁 구도와 일치함.
+
+# 서브웨이의 경쟁 브랜드는 `quiznos`(0.929), `jerseymikessubs`(0.925), `firehousesubs`(0.908) 등 **샌드위치 전문 체인**으로 구성됨.
+
+# 치폴레의 경쟁 브랜드는 `qdobamexicaneats`(0.921), `uberrito`(0.882) 등 **멕시칸 패스트캐주얼** 브랜드로 집중됨.
+
+# TF-IDF와 TF-IDF+L2의 유사도 결과가 거의 동일한 것은 L2 정규화가 벡터의 **방향(각도)**은 바꾸지 않고 크기만 조정하기 때문임. 코사인 유사도는 방향만 비교하므로 L2 정규화 여부가 결과에 영향을 주지 않음.

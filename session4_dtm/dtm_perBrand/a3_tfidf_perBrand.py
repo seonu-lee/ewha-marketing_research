@@ -102,14 +102,14 @@ def create_and_save_tfidf_perBrand(dtm_file_name, apply_l2):
 
 
 if __name__ == "__main__":
-    dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_0.9_0.3_10_dtm'
+    dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_1.0_0.3_10_dtm'
     df_tfidf = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=False)
     df_tfidf_l2 = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=True)
     print("=== 조건1 ===")
     print(df_tfidf.shape)
     print(df_tfidf_l2.shape)
 
-    dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_0.9_0.1_10_dtm'
+    dtm_file_name = 'reviews_restaurants_az_perBrand_0.1_1.0_0.1_10_dtm'
     df_tfidf = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=False)
     df_tfidf_l2 = create_and_save_tfidf_perBrand(dtm_file_name=dtm_file_name, apply_l2=True)
     print("=== 조건2 ===")
