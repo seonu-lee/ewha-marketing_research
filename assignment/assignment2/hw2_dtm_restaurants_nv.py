@@ -586,3 +586,31 @@ word_category_df = word_category_df.sort_values(by=['category', 'term']).reset_i
 word_category_df.to_csv(f"{PATH_to_save}/word_categories_restaurants_nv.csv", index=False, encoding='utf-8-sig')
 print(f"저장 완료: word_categories_restaurants_nv.csv")
 print(word_category_df.groupby('category')['term'].count())
+
+##########=================================
+# 4단계. TF-IDF 계산 및 저장
+from sklearn.feature_extraction.text import TfidfTransformer
+
+#=================================
+# TF-IDF 저장
+#=================================
+def create_and_save_tfidf_perBrand(dtm_file_name, apply_l2):
+    df = pd.read_csv(f"{PATH_to_save}/{dtm_file_name}.csv")
+    meta_cols_pool = ['name', 'review_count', 'avg_stars', 'useful_count', 'funny_count', 'cool_count', 'categories']
+    meta_cols = [col for col in df.columns if col in meta_cols_pool]
+    dtm_cols = [col for col in df.columns if col not in meta_cols]
+    df_meta = df[meta_cols]
+    df_dtm = df[dtm_cols]
+    tfidf = TfidfTransformer(norm='l2' if apply_l2 else None)
+    dtm_tfidf = tfidf.fit_transform(df_dtm)
+    df_tfidf = pd.DataFrame(dtm_tfidf.toarray(), columns=dtm_cols).round(5)
+    df_tfidf = pd.concat([df_meta, df_tfidf], axis=1)
+    suffix = '_tfidf_l2' if apply_l2 else '_tfidf'
+    df_tfidf.to_csv(f"{PATH_to_save}/{dtm_file_name}{suffix}.csv", index=False, encoding='utf-8-sig')
+    print(f"저장 완료: {dtm_file_name}{suffix}.csv")
+    return df_tfidf
+
+if __name__ == "__main__":
+    dtm_file_name = 'reviews_restaurants_nv_perBrand_0.1_0.9_0.3_10_dtm'
+    create_and_save_tfidf_perBrand(dtm_file_name, apply_l2=False)
+    create_and_save_tfidf_perBrand(dtm_file_name, apply_l2=True)
