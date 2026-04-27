@@ -84,16 +84,16 @@ from sklearn.preprocessing import normalize
 
 import sys
 from importlib import reload
-sys.path.append('')
+sys.path.append(r"C:\Users\seonu\Documents\ewha-marketing_research")
 from lib.lib_dtm import lib_filtering_dtm as lfd
 reload(lfd)
 
 import plotly.io as pio
-pio.renderers.default = "browser"  # 항상 브라우저로 열기 설정
+pio.renderers.default = "vscode"  # 항상 브라우저로 열기 설정
 
 ### 조건 설정
-PATH_to_data = "" 
-PATH_to_save = ""
+PATH_to_data = "C:\\Users\\seonu\\Documents\\ewha-marketing_research\\session4_dtm\\results" 
+PATH_to_save = "C:\\Users\\seonu\\Documents\\ewha-marketing_research\\session6_pca\\results"
 meta_cols_pool = ['user_id', 'name', 'review_count', 'avg_stars', 'useful_count', 'funny_count', 'cool_count', 'categories'] # meta col으로 사용될 수있는 것들은 모두 포함 
 
 # ────────────────────────────────────────────────────────────
@@ -428,7 +428,7 @@ if __name__ == '__main__':
         words_to_delete = [],
         words_to_include_exclusively = [],
         )
-    apply_stdscaler, apply_l2 = True, True
+    apply_stdscaler, apply_l2 = True, False
 
     # 1) 분석할 데이터 추출
     data_w_meta_cols = lfd.filtering_dtm_at_brand_level(input_data_filtering_conditions)

@@ -3,7 +3,7 @@ import pandas as pd
 
 
 ### 조건 설정
-PATH_to_data = r"C:\Users\seonu\Documents\ewha-marketing_research\assignment\assignment2\results"
+PATH_to_data = PATH_to_data = r"C:\Users\seonu\Documents\ewha-marketing_research\assignment\assignment2\results"
 meta_cols_pool = ['user_id', 'name', 'review_count', 'avg_stars', 'useful_count', 'funny_count', 'cool_count', 'categories'] # meta col으로 사용될 수있는 것들은 모두 포함 
 
 # ────────────────────────────────────────────────────────────
