@@ -1,7 +1,7 @@
 '''
 1. EFA 탐색적 요인분석
 1.1 개념
-    - 관측된 변수 (예, 단어)들 간의 상관을 더 작은 수의 잠재 변수로 설명하는 분석 기법
+    - 관측된 변수 (예, 단어)들 간의 상관을 더 작은 수의 잠재 변수(Factor)로 설명하는 기법
     - 문서×단어 행렬에서 단어들의 공분산(covariance) 구조를 분해해 숨은 잠재 요인을 찾음
 1.2 결과물
     - Λ 요인적재행렬 (loading matrix): 각 단어가 각 요인과 얼마나 관련되어 있는지를 나타냄 (단어수x요인수) -> 각 요인의 의미 해석 
@@ -11,7 +11,7 @@
     - 브랜드/제품의 포지셔닝 축을 텍스트에서 도출
 
 2. 가정: 변수들간의 상관이 충분해야 함 (상관관계가 없으면 요인 형성이 불가)
-2.1 KMO: 
+2.1 KMO ((Kaiser-Meyer-Olkin)): 
     - 변수 간 상관관계가 얼마나 요인(factor)에 의해 설명될 수 있는지를 나타냄
     - 0과 1 사이의 값을 가지며: 1에 가까울수록 요인분석에 적합. 0에 가까울수록 부적합
 2.2 Bartlett test: 
@@ -23,21 +23,36 @@
     - 스크리플롯: 상관행렬의 고유값(λ₁≥λ₂≥…)을 순서대로 그려 ‘팔꿈치’(기울기 급변) 지점 
     - 고유값 > 1 (보조적) 데이터 표준화시 각 변수의 분산=1, 즉 각 요인이 1개 보다 많은 변수의 분산을 설명할 경우 포함한다는 의미임
 
-4. 회전
-4.1 목적
+4. 상관행렬로부터 요인 추출 방법
+4.1 전체분산 기반
+    - Principal Factor Method: "principal"
+        - 변수의 전체 분산(공통 분산 + 고유 분산)을 모두 요인이 설명하도록 함, 주성분 분석과 동일한 방식임 
+        - 정보 보존 & 차원 축소에 초점
+4.2 공통 분산 기반
+    - 변수 간의 관계(공분산)에서 기인한 공통 분산만을 사용하여 숨겨진 잠재 요인 탐색
+    - Unweighted Least Squares/Minimum Residual: "uls", "minres"
+        - 원래의 상관행렬과 모델로 재구성된 상관행렬 사이의 잔차(Residual)를 최소화하는 방식
+        - 변수들 사이의 공통 분산만을 추출하며, 정규성 가정이 필요 없음
+        - 잠재 요인 탐색에 초점
+    - Maximum Likelihood: "ml", "mle"
+        - 모집단의 상관행렬에서 표본이 관찰될 확률을 최대화하는 최대우도법 기반
+        - 엄역한 정규성 가정
+
+5. 회전
+5.1 목적
     - 변수 값과 공분산 구조(상관관계)는 그대로 유지한 채, 요인축의 방향만 회전하여 해석을 용이하게 함
     - 즉, 축을 돌려 변수들이 보다 명확히 하나의 요인에 속하도록 하여 단순 구조(simple structure)를 만듦
-4.2 방법
-4.2.1 직교 회전
+5.2 방법
+5.2.1 직교 회전
     - 인자들의 독립성(직교성)을 유지하는 회전 (varimax 등)
     - 요인 간 관계가 없다고 가정하고, 각 요인을 분리된 축으로 만들어 해석을 단순화함
     - 그러나 현실에서는 요인들이 서로 상관되어 있을 수 있으며, 직교회전은 이를 반영하지 못함
-4.2.2 사교 회전
+5.2.2 사교 회전
     - 요인 간 상관을 허용하는 회전 (promax, oblimin 등)
     - 실제 인자들이 서로 상관되어 있을 수 있는 현실적 구조를 반영함
 
-5. 데이터 전처리
-5.1 행(브랜드)별 정규화, L2 normalize
+6. 데이터 전처리 (참고)
+6.1 행(브랜드)별 정규화, L2 normalize
 
     - dtm 데이터 (행별 정규화 전)
         문서	맛	서비스
@@ -55,7 +70,7 @@
         - 맛과 서비스는 같은 방향으로 움직임 (양의 상관관계). 즉 공통된 잠재요인이 존재할 가능성 높음. 
         - 행별 정규화 적용하면 변수들이 함께 커지지는 정보 (공동 변동성)이 사라짐. 즉, 요인분석에 필요한 공통요인구조를 파악할 수 없음
 
-5.2 브랜드별 리뷰수로 나누기
+6.2 브랜드별 리뷰수로 나누기
 
     - case 1: 맛과 서비스 간에 상관관계가 실제로 존재하는 경우
         - dtm 데이터 & 리뷰수
@@ -85,7 +100,7 @@
 
     - 리뷰수로 나누는 경우에는, 크기(리뷰 수)에 의해 발생한 왜곡된 상관관계를 제거하고 실제 데이터의 상관구조를 복원하는 역할을 함
     
-5.3 열(단어)별 표준화, StandardScaler
+6.3 열(단어)별 표준화, StandardScaler
     - dtm 데이터
         문서	맛	서비스
         A   	1	100
@@ -99,8 +114,8 @@
         C	1.22	1.22        
 
     - dtm에서는 서비스의 값이 훨씬 크므로 분석에서 서비스가 지배할 가능성 있음
-    - standardScaler는 상관구조를 유지하면서 변수 간 영향력을 균형을 맞춤
-
+    - standardScaler는 상관구조를 유지하면서 변수 간 영향력을 균형을 맞춤 
+    - (FactorAnalyzer를 포함한 대부분의 패키지에서 기본으로 적용됨)
 
 '''
 
@@ -244,11 +259,11 @@ def determine_n_factors(data_w_meta_cols, apply_div_by_review_count=True, apply_
     #=================================
     # 고유값 계산
     #=================================
-    # method: ml (Maximum Likelihood, 최대우도법), principal (Principal Factor Method), minres(Minimum Residual), pa(Principal Axis)
     # rotation=None -> 회전전의 고유값 기준으로 테스트, 회전을 하게되면 각 요인이 설명하는 분산의 분포가 바뀔 수 있음
+    # 고유값은 공통분산과 고유분산 구분전
     fa_test = FactorAnalyzer(rotation=None, method='principal')  
     fa_test.fit(X_scaled) 
-    eigenvals_raw, _ = fa_test.get_eigenvalues() # 1-D array (len = n_vars)
+    eigenvals_raw, _ = fa_test.get_eigenvalues() # 1-D array (len = n_vars), eigenvals_raw는 요인 추출 전 상관행렬로부터 직접 추출. 공통분산과 고유분산 구분전이므로 methed의 영향을 받지 않음
     eigenvals = np.sort(eigenvals_raw)[::-1] # Scree 내림차순 정렬
 
     # Kaiser 기준(k) : 고유값 > 1 의 갯수
@@ -301,7 +316,7 @@ def determine_n_factors(data_w_meta_cols, apply_div_by_review_count=True, apply_
 
 # ────────────────────────────────────────────────────────────
 # 4) 요인모델 적합 & 회전
-def traing_factor_model(data_w_meta_cols, n_factors, rotation_method='varimax', apply_div_by_review_count=True, apply_l2=False, apply_stdscaler=True):
+def traing_factor_model(data_w_meta_cols, n_factors, rotation_method='varimax', apply_div_by_review_count=True, apply_l2=False, apply_stdscaler=True, method='uls'):
 
     #=================================
     # 데이터 전처리 
@@ -339,7 +354,7 @@ def traing_factor_model(data_w_meta_cols, n_factors, rotation_method='varimax', 
     fa = FactorAnalyzer(
             n_factors=n_factors,
             rotation=rotation_method,
-            method="principal", # ml (Maximum Likelihood), principal (Principal Factor Method), minres(Minimum Residual), pa(Principal Axis)
+            method=method, # 'principal', 'uls', 'minres', 'ml'
         ) 
     fa.fit(X_scaled)
 
@@ -455,11 +470,24 @@ def drow_factor_map(brand_factor_scores, x_factor, y_factor, size_col='review_co
 if __name__ == '__main__':
 
     '''
-    1-1) tf + 리뷰수로 나누기 미적용 (l2 미적용, stdscaler 적용) + rotation_method: varimax
-    1-2) tf + 리뷰수로 나누기 미적용 (l2 미적용, stdscaler 적용) + rotation_method: oblimin
-    2-1) tf + 리뷰수로 나누기 적용 (l2 미적용, stdscaler 적용) + rotation_method: varimax
-    2-2) tf + 리뷰수로 나누기 적용 (l2 미적용, stdscaler 적용) + rotation_method: oblimin
-    3) 브랜드 포지션 해석    
+    ## 공통: l2 미적용, stdscaler 적용
+
+    ## 리뷰수 나누기 적용 효과 비교
+    1-1) tf + 리뷰수로 나누기 미적용 + 요인추출: principal + rotation_method: varimax
+    1-1) tf + 리뷰수로 나누기 적용 + 요인추출: principal + rotation_method: varimax
+        
+    ## 요인추출 방법 영향 비교
+    2-1) tf + 리뷰수로 나누기 적용 + 요인추출: principal + rotation_method: varimax
+    2-2) tf + 리뷰수로 나누기 적용 + 요인추출: uls + rotation_method: varimax
+    2-3) tf + 리뷰수로 나누기 적용 + 요인추출: mle + rotation_method: varimax
+
+    
+    ## 회전방법 비교
+    3-1) tf + 리뷰수로 나누기 적용 + 요인추출: uls + rotation_method: varimax
+    3-2) tf + 리뷰수로 나누기 적용 + 요인추출: uls + rotation_method: oblimin
+
+    3. 브랜드 포지션 해석    
+    - oreganospizzabistro
 
     '''
     #-------------------------------
@@ -486,15 +514,16 @@ if __name__ == '__main__':
     kmo_bartlett_test(data_w_meta_cols=data_w_meta_cols)
 
     ## 3) 요인 수(k) 결정
-    k_kaiser, scree_fig = determine_n_factors(data_w_meta_cols)
+    k_kaiser, scree_fig = determine_n_factors(data_w_meta_cols=data_w_meta_cols, apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler)
     scree_fig.show()
 
     ## 4) 요인모델 적합 & 회전
-    n_factors = 5   # 위 단계에서 결정한 k 값
+    n_factors = 10   # 위 단계에서 결정한 k 값 # 5, 10
+    method = "uls" # 'principal', 'uls'/'minres', 'ml'/'mle'
     rotation_method = 'oblimin' # varimax, promax, oblimin
     factor_loadings, brand_factor_scores = traing_factor_model(
         data_w_meta_cols=data_w_meta_cols, n_factors=n_factors, rotation_method=rotation_method, 
-        apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler,
+        apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler, method=method
         )
 
     ## 5) 유의미한 factor loading 추출
@@ -521,6 +550,7 @@ if __name__ == '__main__':
         )
     apply_div_by_review_count=True; apply_l2=False; apply_stdscaler=True
 
+
     ## 1) 분석할 데이터 추출
     data_w_meta_cols = lfd.filtering_dtm_at_brand_level(input_data_filtering_conditions)
 
@@ -532,15 +562,16 @@ if __name__ == '__main__':
     kmo_bartlett_test(data_w_meta_cols=data_w_meta_cols)
 
     ## 3) 요인 수(k) 결정
-    k_kaiser, scree_fig = determine_n_factors(data_w_meta_cols)
+    k_kaiser, scree_fig = determine_n_factors(data_w_meta_cols=data_w_meta_cols, apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler)
     scree_fig.show()
 
     ## 4) 요인모델 적합 & 회전
-    n_factors = 5   # 위 단계에서 결정한 k 값
+    n_factors = 10   # 위 단계에서 결정한 k 값 # 5, 10
+    method = "ml" # 'principal', 'uls'/'minres', 'ml'/'mle'
     rotation_method = 'varimax' # varimax, promax, oblimin
     factor_loadings, brand_factor_scores = traing_factor_model(
         data_w_meta_cols=data_w_meta_cols, n_factors=n_factors, rotation_method=rotation_method, 
-        apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler,
+        apply_div_by_review_count=apply_div_by_review_count, apply_l2=apply_l2, apply_stdscaler=apply_stdscaler, method=method
         )
 
     ## 5) 유의미한 factor loading 추출
