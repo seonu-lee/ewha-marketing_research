@@ -268,7 +268,7 @@ def lda_parma_grid_search(data_w_meta_cols, param_grid, top_n=10):
         # LDA 학습
         lda = LatentDirichletAllocation(
             **params, learning_method="batch",
-            random_state=42, n_jobs=-1, max_iter=5
+            random_state=42, n_jobs=-1, max_iter=10
         )
         lda.fit(count_matrix)
 
@@ -281,12 +281,13 @@ def lda_parma_grid_search(data_w_meta_cols, param_grid, top_n=10):
         # perplexity
         perp = lda.perplexity(count_matrix)
 
-        # coherence
-        cm = CoherenceModel(
-            topics=topics, texts=token_lists,
-            dictionary=dictionary, coherence='c_v'
-        )
-        c_v = cm.get_coherence()
+        # # coherence - 계산 비용 너무 커서 임시 제외, 최종 분석 시 복원 예정
+        # cm = CoherenceModel(
+        #     topics=topics, texts=token_lists,
+        #     dictionary=dictionary, coherence='c_v'
+        # )
+        # c_v = cm.get_coherence()
+        c_v = 0  # 임시값
 
         # diversity
         flat_terms = [w for topic in topics for w in topic]
@@ -599,13 +600,14 @@ print(brand_scores[[f'F{i+1}_score' for i in range(n_factors)]])
 # - data_w_meta_cols: 원본 데이터 (EFA용 필터링 미적용)
 
 # Step 8. Grid Search - 최적 LDA 파라미터 탐색
-# - 1단계: K만 탐색 (α, β 기본값 고정) → 빠른 K 범위 확인
-# - max_iter=5: 속도 우선, 분석 마무리 후 max_iter=10으로 재탐색 예정
-# - K 후보: 3, 5, 7, 10 (단어 64개 기준, K 크면 토픽간 단어 중복 발생)
+# - K 후보: 3, 5, 7, 10 (단어 330개 기준, K 크면 토픽간 단어 중복 발생)
+# - α: [None, 0.1, 0.5] (문서-토픽 분포 희소성 조절)
+# - β: [None, 0.01] (토픽-단어 분포 희소성 조절)
+# - Coherence(c_v) 계산 제외 (연산 비용 과다), perplexity·diversity·exclusivity로 판단
 param_grid = {
     "n_components": [3, 5, 7, 10],
-    "doc_topic_prior": [None],
-    "topic_word_prior": [None],
+    "doc_topic_prior": [None, 0.1, 0.5],
+    "topic_word_prior": [None, 0.01],
 }
 param_search_results_df = lda_parma_grid_search(
     data_w_meta_cols=data_w_meta_cols, param_grid=param_grid
@@ -616,3 +618,47 @@ fig_grid = lda_parma_grid_search_graph(param_search_results_df)
 fig_grid.show()
 
 print(param_search_results_df.to_string())
+
+# Step 9. 최적 파라미터로 LDA 학습
+# - K=5: perplexity 개선 + diversity/exclusivity 균형점
+# - EFA 요인 수(5개)와 일치 → 결과 비교 해석 용이
+# - α, β: 기본값(None) 유지 (1/K, 1/V)
+params_slted = dict(
+    n_components_slted=5,
+    doc_topic_prior_slted=None,
+    topic_word_prior_slted=None,
+)
+lda_best, topic_word_prob_df, document_topic_prob_w_meta_cols = traing_lda_best(
+    data_w_meta_cols, params_slted
+)
+
+# Step 10. 토픽별 Top-N 키워드 추출
+# - phi: 절대비중 기준
+# - excl: 전용성 기준
+# - phi_excl: 혼합 기준 (절대비중 × 전용성) → 핵심 시그니처 단어 추출에 유리
+top_n = 10
+kw_phi = extract_topic_keywords(topic_word_prob_df, "phi", top_n)
+kw_excl = extract_topic_keywords(topic_word_prob_df, "excl", top_n)
+kw_phi_excl = extract_topic_keywords(topic_word_prob_df, "phi_excl", top_n)
+
+print("===== phi (절대비중) =====")
+print(kw_phi)
+print("\n===== excl (전용성) =====")
+print(kw_excl)
+print("===== phi_excl (혼합) =====")
+print(kw_phi_excl)
+
+# Step 11. 특정 브랜드 포지션 설명 - monamigabi
+# - EFA와 동일 브랜드 선택 → EFA vs LDA 결과 비교 용이
+target_brand = 'monamigabi'
+brand_topic_scores = document_topic_prob_w_meta_cols.loc[target_brand]
+print(f"===== {target_brand} 토픽 확률 분포 =====")
+print(brand_topic_scores[[f'Topic{i+1}' for i in range(5)]])
+
+# Step 12. 브랜드-토픽 히트맵 시각화
+# - 브랜드별 토픽 분포를 한눈에 확인
+# - monamigabi의 Topic2 집중도 시각적으로 확인
+fig_heatmap = doucment_topic_heatmap(
+    document_topic_prob_w_meta_cols, n_document_to_graph=30
+)
+fig_heatmap.show()
