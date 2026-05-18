@@ -74,17 +74,27 @@ from gensim.models.coherencemodel import CoherenceModel
 
 import sys
 from importlib import reload
-sys.path.append('')
+sys.path.append('C:\\Users\\seonu\\Documents\\ewha-marketing_research')
 from lib.lib_dtm import lib_filtering_dtm as lfd
 reload(lfd)
 
+# 자꾸 외부 설치된 패키지(lib)를 불러와서 에러남 (site-packages에 있는 lib 먼저 발견)
+# import os
+# lib_path = r'c:\Users\seonu\anaconda3\envs\mktclass\Lib\site-packages\lib'
+# print(os.path.exists(lib_path))
+# import os
+# for f in os.listdir(r'c:\Users\seonu\anaconda3\envs\mktclass\Lib\site-packages\lib'):
+#     print(f)
+# __init__.py만 있는 빈 패키지가 있어서, 삭제함
+# 에러해결
+
 ### 공통 조건 설정
 meta_cols_pool = ['user_id', 'name', 'review_count', 'avg_stars', 'useful_count', 'funny_count', 'cool_count', 'categories'] # meta col으로 사용될 수있는 것들은 모두 포함 
-PATH_to_save = ""
+PATH_to_save = r"C:\Users\seonu\Documents\ewha-marketing_research\session8_topic_model\results"
 
 
 #=================================
-# 0. 데이터 불러오기 
+# 0. 데이터 불러오기
 #=================================
 
 #=================================
@@ -514,7 +524,6 @@ def doucment_topic_heatmap(document_topic_prob_w_meta_cols, n_document_to_graph)
     # fig.show()
     return fig
 
-
 #-------------------------------------
 if __name__ == "__main__":
 
@@ -522,13 +531,14 @@ if __name__ == "__main__":
     ### 전체 브랜드 + 전체 키워드
     ## 0) 분석할 원 데이터 추출
     input_data_filtering_conditions = dict(
-        input_file_name = "reviews_restaurants_az_perBrand_0.1_0.9_0.3_10_dtm",
-        remove_brand_w_word_in_name = False,
-        brand_categories_slted = [],
-        words_to_delete = [],
-        words_to_include_exclusively = [],
+        input_file_name = "reviews_restaurants_az_perBrand_0.1_0.9_0.3_10_dtm", # 불러올 DTM 파일명
+        remove_brand_w_word_in_name = False, # 브랜드명에 특정 단어 포함 시 제거 여부
+        brand_categories_slted = [],         # 특정 카테고리만 필터링 (빈 리스트 = 전체)
+        words_to_delete = [],                # 제거할 단어 목록
+        words_to_include_exclusively = [],   # 이 단어만 포함 (빈 리스트 = 전체)
         )
     data_w_meta_cols = lfd.filtering_dtm_at_brand_level(input_data_filtering_conditions=input_data_filtering_conditions)
+    print(data_w_meta_cols.head())
 
     ## 1) Grid‑search LDA
     param_grid1 = {

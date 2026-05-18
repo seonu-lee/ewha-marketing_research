@@ -120,7 +120,7 @@
 '''
 
 import plotly.io as pio
-pio.renderers.default = "browser"  # VS Code·Jupyter 환경에 맞게 설정
+pio.renderers.default = "vscode"  # VS Code·Jupyter 환경에 맞게 설정
 
 import pandas as pd
 import numpy as np
@@ -134,12 +134,12 @@ from sklearn.preprocessing import normalize
 
 import sys
 from importlib import reload
-sys.path.append('/Users/carrot/Dropbox/Learning/inflearn/902_textanalytics_class/class20261')
+sys.path.append('C:\\Users\\seonu\\Documents\\ewha-marketing_research')
 from lib.lib_dtm import lib_filtering_dtm as lfd
 reload(lfd)
 
 meta_cols_pool = ['user_id', 'name', 'review_count', 'avg_stars', 'useful_count', 'funny_count', 'cool_count', 'categories'] # meta col으로 사용될 수있는 것들은 모두 포함 
-PATH_to_save = "/Users/carrot/Dropbox/Learning/inflearn/902_textanalytics_class/class20261/s09_efa/data"
+PATH_to_save = r"C:\Users\seonu\Documents\ewha-marketing_research\session9_efa\results"
 
 
 # ────────────────────────────────────────────────────────────
